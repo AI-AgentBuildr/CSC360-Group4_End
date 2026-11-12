@@ -3,12 +3,21 @@ package medianfilter;
 /** The median filter for a single-channel (grayscale) image. */
 public final class MedianFilter {
 
+    /** Not instantiable: this class only holds static methods. */
     private MedianFilter() {
     }
 
     /**
-     * Collects the window of neighbours for every pixel. For now the output is still the
-     * centre pixel of the window (so the image is unchanged); the median comes next.
+     * Applies a median filter. Every output pixel is the median of the square window of
+     * neighbours around the same position in the input. Results go into a new array, so
+     * already-filtered pixels never influence later ones, and the input is not changed.
+     * Pixels near the edge use the nearest edge value for missing neighbours
+     * (see {@link PixelGrid#getClamped(int, int)}).
+     *
+     * @param pixels grayscale image as {@code pixels[y][x]}
+     * @param windowSize odd side length of the window, at least 3
+     * @return the filtered image, same size as the input
+     * @throws IllegalArgumentException if the image or the window size is invalid
      */
     public static int[][] apply(int[][] pixels, int windowSize) {
         PixelGrid grid = new PixelGrid(pixels);
@@ -24,7 +33,7 @@ public final class MedianFilter {
                         window[count++] = grid.getClamped(x + dx, y + dy);
                     }
                 }
-                result[y][x] = window[window.length / 2]; // TODO: replace with the median
+                result[y][x] = Median.median(window);
             }
         }
         return result;
