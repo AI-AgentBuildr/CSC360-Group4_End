@@ -26,4 +26,17 @@ public final class FilterOptions {
                     "Window size must be odd (3, 5, 7, ...) but was " + windowSize);
         }
     }
+
+    /**
+     * Converts a window size to its radius: how many pixels the window reaches out from the
+     * centre in each direction (3 gives 1, 5 gives 2, 7 gives 3).
+     *
+     * @param windowSize side length of the square window
+     * @return the radius
+     * @throws IllegalArgumentException if the size is not valid
+     */
+    public static int radiusFor(int windowSize) {
+        validateWindowSize(windowSize);
+        return windowSize / 2;
+    }
 }
