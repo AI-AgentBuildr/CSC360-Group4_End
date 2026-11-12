@@ -65,4 +65,16 @@ public final class PixelGrid {
         int cy = Math.max(0, Math.min(height - 1, y));
         return pixels[cy][cx];
     }
+
+    /**
+     * Tells whether a window of the given radius around (x, y) would stick out of the image.
+     *
+     * @param x column of the centre pixel
+     * @param y row of the centre pixel
+     * @param radius how far the window reaches from the centre
+     * @return true if any part of the window is outside the image
+     */
+    public boolean isBorder(int x, int y, int radius) {
+        return x - radius < 0 || y - radius < 0 || x + radius >= width || y + radius >= height;
+    }
 }
