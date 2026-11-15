@@ -14,6 +14,8 @@
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
+        <!-- Class started by mvn exec:java; override with -Dexec.mainClass=... -->
+        <exec.mainClass>medianfilter.MedianFilterApp</exec.mainClass>
     </properties>
 
     <dependencies>
@@ -52,9 +54,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration>
-                    <mainClass>medianfilter.MedianFilterApp</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
