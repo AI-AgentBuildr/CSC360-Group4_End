@@ -164,3 +164,75 @@ Requirements: JDK 11 or newer, Apache Maven 3.8 or newer.
 | Compile | `mvn compile` |
 | Run all tests | `mvn test` |
 | Generate Javadoc | `mvn javadoc:javadoc` (open `target/site/apidocs/index.html`) |
+
+## Run
+
+```
+mvn compile exec:java -Dexec.args="src/main/resources/samples/noisy.png 3"
+```
+
+The first argument is the image file (use any image of your own, too); the optional second is the
+window size (odd, at least 3; default 3). Two ImageJ windows open: the original and the filtered image.
+
+Bad input is reported instead of crashing: a missing file, a window size that is not a whole
+number, or an even or too small window size.
+
+## Results on the sample image
+
+`src/main/resources/samples/noisy.png` is a 256x256 test picture (soft gradient, a bright disc and
+a dark square) with **10% salt-and-pepper noise** added: 5% of pixels forced to black, 5% to
+white, at random (fixed seed, so it is reproducible). `clean.png` is the same picture without
+noise, so we can measure how close each filter gets to the original.
+
+Left to right: noisy input, median 3x3, mean 3x3.
+
+![noisy, median 3x3, mean 3x3](docs/images/before_after.png)
+
+| Image | Mean squared error vs clean (lower is better) | PSNR (higher is better) |
+|---|---|---|
+| Noisy input | 2067.4 | 15.0 dB |
+| **Median 3x3** | **12.8** | **37.0 dB** |
+| Median 5x5 | 12.8 | 37.1 dB |
+| Mean 3x3 (for comparison) | 304.3 | 23.3 dB |
+
+*Mean squared error* is the average of (filtered pixel - original pixel)^2 over all pixels.
+*PSNR* (peak signal-to-noise ratio) turns that into decibels: PSNR = 10 * log10(255^2 / MSE).
+
+What the numbers say:
+- The median filter removes almost all of the noise (error drops from 2067 to about 13); the
+  mean filter only reduces it to 304, because it spreads each noisy pixel over its neighbours.
+- At 10% noise a 3x3 and a 5x5 window do about equally well on this picture. A bigger window is
+  only worth its extra blur and cost when noise comes in larger blotches.
+- The remaining small error comes from pixels at the corners of the square, where the window mixes
+  two regions (the "rounded corners" limit above).
+
+(These pictures were produced with this project's own `MedianFilter` class.)
+
+## Where each step of the algorithm lives in the code
+
+| Algorithm step | Code |
+|---|---|
+| Read the image and get its pixels | `ImageAdapter.toArray` |
+| Check the image and window size | `PixelGrid` constructor, `FilterOptions.validateWindowSize` |
+| Window radius (3 -> 1, 5 -> 2) | `FilterOptions.radiusFor` |
+| Collect the window around a pixel, with edge clamping | `MedianFilter.apply` (two inner loops), `PixelGrid.getClamped` |
+| Sort and take the middle value | `Median.median` |
+| Write the result into a new image | `MedianFilter.apply` (the `result` array) |
+| Colour: filter R, G and B separately | `ColorFilter.applyRgb` |
+| Turn the result back into an ImageJ image and show it | `ImageAdapter.fromArray`, `MedianFilterApp.main` |
+
+## Testing
+
+31 JUnit 5 tests check the algorithm against hand-worked results:
+
+- the 3x3 example above (255 becomes 51);
+- an isolated spike vanishes, a flat image is unchanged, a straight edge stays sharp;
+- corner pixels, a 1x1 image, and a spike next to the border;
+- a 5x5 window removes a blob that a 3x3 window cannot;
+- the input image is never modified;
+- invalid images and window sizes are rejected;
+- colour channels are filtered independently.
+
+## Team
+
+CSC360 Group 4. Add the four members' names and what each built here.
