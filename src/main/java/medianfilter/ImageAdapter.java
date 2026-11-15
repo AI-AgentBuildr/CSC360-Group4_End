@@ -1,6 +1,7 @@
 package medianfilter;
 
 import ij.process.ColorProcessor;
+import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 /**
@@ -53,12 +54,20 @@ public final class ImageAdapter {
      * Median-filters an ImageJ image and returns the result as a new image; the original is
      * left untouched.
      *
-     * @param ip the image to filter (grayscale or colour)
+     * <p>Supported types: 8-bit and 16-bit grayscale, and RGB colour. 32-bit floating point
+     * images are rejected, because their pixel values are decimal numbers that do not fit the
+     * integer arrays the filter works on.
+     *
+     * @param ip the image to filter (8-bit or 16-bit grayscale, or RGB colour)
      * @param windowSize odd side length of the window, at least 3
      * @return the filtered copy
-     * @throws IllegalArgumentException if the window size is invalid
+     * @throws IllegalArgumentException if the window size is invalid or the image is 32-bit float
      */
     public static ImageProcessor filter(ImageProcessor ip, int windowSize) {
+        if (ip instanceof FloatProcessor) {
+            throw new IllegalArgumentException(
+                    "32-bit float images are not supported; convert to 8-bit or 16-bit first");
+        }
         int[][] pixels = toArray(ip);
         int[][] filtered = (ip instanceof ColorProcessor)
                 ? ColorFilter.applyRgb(pixels, windowSize)
