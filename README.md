@@ -75,9 +75,15 @@ mvn compile exec:java -Dexec.args="src/main/resources/samples/noisy.png 3"
 `noisy.png` is a 256 x 256 test picture with 10% salt-and-pepper noise. The last argument is the
 window size, the size of the filter region (odd, at least 3).
 
+![Input: noisy.png](src/main/resources/samples/noisy.png)
+
 ## Sample Output
 
-Two ImageJ windows open: the noisy original and the **Median filtered (3x3)** result.
+The filtered picture opens in a new ImageJ window titled **Median filtered (3x3)**.
+
+![Output: median filtered 3x3](docs/images/median_3x3.png)
+
+ImageJ shows both windows, the noisy original and the result:
 
 ![Noisy input and 3x3 median output](docs/images/input_output.png)
 
