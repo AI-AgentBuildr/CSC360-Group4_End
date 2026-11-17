@@ -3,9 +3,8 @@
 A Java program that removes salt-and-pepper noise (random white and black dots) from an image by
 applying a **median filter**, using ImageJ to open and show the images. It is our CSC360 Group 4
 end-semester project. Its aim is to **understand a filtering algorithm**: what a filter is and how
-the median filter works. We studied the chapter on filters in our course textbook, *Digital Image
-Processing: An Algorithmic Introduction Using Java*, and then implemented the filter ourselves to
-check that we understood it. The terms and definitions below are the textbook's.
+the median filter works. We first worked through the theory of filtering, then implemented the
+filter ourselves to check that we understood it.
 
 ---
 
@@ -19,7 +18,7 @@ check that we understood it. The terms and definitions below are the textbook's.
 3. The size of the filter region is the **support** of the filter: how many original pixels
    contribute to each result pixel (for example 3 x 3 or 5 x 5).
 4. Filters are **linear** (the result is a weighted sum of the pixels in the region) or
-   **nonlinear**. The book's first example is the linear **box filter**, the average of a 3 x 3
+   **nonlinear**. The simplest linear example is the **box filter**, the average of a 3 x 3
    region:
 
    ```
@@ -41,15 +40,15 @@ check that we understood it. The terms and definitions below are the textbook's.
 4. The region has (2r + 1)^2 = 4(r^2 + r) + 1 elements, so the middle index is n = 2(r^2 + r):
    n = 4 for 3 x 3, n = 12 for 5 x 5.
 5. Near the image border the region leaves the image. We use **padding** in which the border
-   pixels extend beyond the image boundaries; the book calls this simple, with only minor artifacts,
-   and often the method of choice.
+   pixels extend beyond the image boundaries; this is simple, has only minor artifacts,
+   and is often the method of choice.
 6. For colour images we use the **scalar (monochromatic) median filter**: each colour channel is
-   filtered as its own grayscale image. The book notes this can create colours that were not in the
-   original, and that ImageJ uses it as its standard median filter.
+   filtered as its own grayscale image. This can create colours that were not in the
+   original; ImageJ uses it as its standard median filter.
 
 ![How the median filter works](docs/images/how_it_works.png)
 
-The book's own example: the 3 x 3 region with rows `3 7 2`, `1 0 0`, `9 5 8` sorts to
+A small example: the 3 x 3 region with rows `3 7 2`, `1 0 0`, `9 5 8` sorts to
 `0 0 1 2 3 5 7 8 9`, and the median is `3`.
 
 **Why it removes noise.** The median is a **rank order statistic**: in a sense the "majority" of
@@ -123,14 +122,14 @@ We read first, worked small examples by hand, and wrote code only when we could 
 | Topic | What we did | What we learned |
 |---|---|---|
 | Filter basics | Read what a filter is | A filter uses a set of source pixels (the filter region R), not a single pixel. The support is the size of R. |
-| The median | Worked the book's example by hand (`3 7 2 / 1 0 0 / 9 5 8` gives 3), then our own region `50 52 51 / 49 255 53 / 50 51 52` | The median is the centre value a_n of the sorted vector A. Sorted, our region is `49 50 50 51 51 52 52 53 255`, so the noisy 255 becomes 51. The average is about 74 (663 / 9); we first wrote 67, recomputed the sum, and corrected it. |
-| Borders | Compared the border methods | The book's own sample code leaves the border unfiltered, which it says usually gives unacceptable results. We chose padding with the border pixels extended and tested that a noisy pixel in a corner is removed. |
+| The median | Worked a small example by hand (`3 7 2 / 1 0 0 / 9 5 8` gives 3), then our own region `50 52 51 / 49 255 53 / 50 51 52` | The median is the centre value a_n of the sorted vector A. Sorted, our region is `49 50 50 51 51 52 52 53 255`, so the noisy 255 becomes 51. The average is about 74 (663 / 9); we first wrote 67, recomputed the sum, and corrected it. |
+| Borders | Compared the border methods | Leaving the border unfiltered usually gives unacceptable results. We chose padding with the border pixels extended and tested that a noisy pixel in a corner is removed. |
 | Window sizes and structures | Predicted, then tested what a median does | An isolated dot vanishes and a straight edge stays sharp; a larger window removes a thicker blotch (structures smaller than half the filter size are eliminated). One early blotch test failed because our hand-worked expectation was wrong, not the filter; we fixed the test. Even window sizes are rejected and tested. |
 | Colour | Read how colour is filtered | Filtering each channel separately can produce new colours. The vector median filter avoids this; we did not implement it. |
 | ImageJ | Connected the filter to ImageJ images | ImageJ images can be 8-bit, 16-bit, RGB or float. We support the first three and reject float images with a clear error message. |
 
 **Still open:** the weighted median filter, the vector median filter, and a circular filter region.
-The book implements the median filter as an ImageJ plugin (`PlugInFilter`); ours is a standalone
+The median filter can also be written as an ImageJ plugin (`PlugInFilter`); ours is a standalone
 program that uses ImageJ.
 
 ---
